@@ -1,8 +1,8 @@
 /* File: public/css/style.css */
 
-/* =========================================
+/* =================================================================
    1. RESET & GLOBAL
-   ========================================= */
+   ================================================================= */
 * {
    margin: 0;
    padding: 0;
@@ -38,9 +38,9 @@ select:focus {
 }
 
 
-/* =========================================
-   2. SIDEBAR NAVIGATION (KIRI) & POPUP MENU
-   ========================================= */
+/* =================================================================
+   2. SIDEBAR NAVIGATION
+   ================================================================= */
 .navigation {
    background-color: white;
    height: 100vh;
@@ -102,7 +102,6 @@ select:focus {
    display: block;
 }
 
-/* --- POPUP MENU "LAINNYA" --- */
 .navigation__more {
    margin-top: auto;
    position: relative;
@@ -119,7 +118,6 @@ select:focus {
    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
    padding: 8px;
    display: none;
-   /* Default Sembunyi */
    z-index: 1000;
    margin-bottom: 15px;
    border: 1px solid #dbdbdb;
@@ -138,7 +136,6 @@ select:focus {
    text-decoration: none;
    border-radius: 8px;
    font-size: 14px;
-   transition: background 0.2s;
    cursor: pointer;
 }
 
@@ -146,38 +143,29 @@ select:focus {
    background-color: #fafafa;
 }
 
-@keyframes popUpFade {
-   from {
-      opacity: 0;
-      transform: translateY(10px);
-   }
 
-   to {
-      opacity: 1;
-      transform: translateY(0);
-   }
-}
-
-
-/* =========================================
+/* =================================================================
    3. LAYOUT CONTAINER
-   ========================================= */
+   ================================================================= */
 .main-container,
 .feed,
 .profile-container,
-.explore {
+.explore,
+.image-detail {
    margin-left: 245px;
    width: calc(100% - 245px);
    min-height: 100vh;
    display: flex;
    flex-direction: column;
    align-items: center;
+   position: relative;
+   z-index: 1;
 }
 
 
-/* =========================================
-   4. HALAMAN FEED (BERANDA)
-   ========================================= */
+/* =================================================================
+   4. HALAMAN FEED
+   ================================================================= */
 .feed {
    padding-top: 40px;
 }
@@ -189,6 +177,7 @@ select:focus {
    width: 100%;
    max-width: 470px;
    margin-bottom: 20px;
+   overflow: hidden;
 }
 
 .photo__header {
@@ -199,8 +188,8 @@ select:focus {
 }
 
 .photo__avatar {
-   width: 32px !important;
-   height: 32px !important;
+   width: 32px;
+   height: 32px;
    border-radius: 50%;
    margin-right: 10px;
    object-fit: cover;
@@ -223,6 +212,7 @@ select:focus {
    width: 100%;
    height: auto;
    display: block;
+   object-fit: cover;
 }
 
 .photo__info {
@@ -281,9 +271,9 @@ select:focus {
 }
 
 
-/* =========================================
-   5. HALAMAN PROFIL
-   ========================================= */
+/* =================================================================
+   5. HALAMAN PROFIL & EDIT PROFIL
+   ================================================================= */
 .profile-wrapper {
    width: 100%;
    max-width: 935px;
@@ -482,10 +472,6 @@ select:focus {
    color: #ed4956 !important;
 }
 
-
-/* =========================================
-   6. HALAMAN EDIT PROFIL
-   ========================================= */
 .edit-profile-wrapper {
    width: 100%;
    max-width: 700px;
@@ -573,18 +559,6 @@ select:focus {
    box-sizing: border-box;
 }
 
-.edit-textarea {
-   resize: vertical;
-   min-height: 80px;
-}
-
-.bio-counter {
-   text-align: right;
-   font-size: 12px;
-   color: #737373;
-   margin-top: 6px;
-}
-
 .btn-submit-container {
    display: flex;
    justify-content: flex-end;
@@ -603,9 +577,9 @@ select:focus {
 }
 
 
-/* =========================================
-   7. HALAMAN CREATE POST (MODAL)
-   ========================================= */
+/* =================================================================
+   6. HALAMAN CREATE POST
+   ================================================================= */
 .create-post-wrapper {
    width: 100%;
    height: 100vh;
@@ -782,9 +756,9 @@ select:focus {
 }
 
 
-/* =========================================
-   8. HALAMAN LOGIN & REGISTER
-   ========================================= */
+/* =================================================================
+   7. HALAMAN LOGIN & REGISTER
+   ================================================================= */
 .no-padding {
    padding: 0 !important;
 }
@@ -946,11 +920,9 @@ select:focus {
 }
 
 
-/* =========================================
-   9. DETAIL POST MODAL (POPUP) 
-   ========================================= */
-
-/* Overlay */
+/* =================================================================
+   8. DETAIL POST MODAL & OPSI
+   ================================================================= */
 .detail-overlay {
    position: fixed;
    top: 0;
@@ -986,7 +958,6 @@ select:focus {
    display: flex;
    border-radius: 4px;
    overflow: hidden;
-
    text-align: left;
 }
 
@@ -1063,10 +1034,12 @@ select:focus {
    font-weight: 600;
    margin-right: 4px;
    color: #262626;
+   text-decoration: none;
 }
 
 .comment-text {
    color: #262626;
+   font-weight: 400;
 }
 
 .comment-meta {
@@ -1076,7 +1049,6 @@ select:focus {
    display: block;
 }
 
-/* Footer */
 .detail-footer {
    border-top: 1px solid #efefef;
    flex-shrink: 0;
@@ -1147,10 +1119,6 @@ select:focus {
    opacity: 0.3;
 }
 
-/* =========================================
-   10. STYLE MENU OPSI (TITIK TIGA)
-   ========================================= */
-
 .options-overlay {
    position: absolute;
    top: 0;
@@ -1173,7 +1141,6 @@ select:focus {
    overflow: hidden;
    display: flex;
    flex-direction: column;
-   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
    animation: popIn 0.1s ease-out;
 }
 
@@ -1186,7 +1153,6 @@ select:focus {
    cursor: pointer;
    text-align: center;
    width: 100%;
-   font-weight: 400;
    color: #262626;
    text-decoration: none;
    display: block;
@@ -1206,6 +1172,127 @@ select:focus {
    background-color: #fafafa;
 }
 
+#postModalContent {
+   color: white;
+   text-align: center;
+   min-height: 0;
+}
+
+
+/* =================================================================
+   9. NOTIFICATION DRAWER
+   ================================================================= */
+.notification-drawer {
+   position: fixed;
+   top: 0;
+   left: 245px;
+   width: 397px;
+   height: 100vh;
+   background-color: white;
+   border-right: 1px solid #dbdbdb;
+   border-left: 1px solid #dbdbdb;
+   z-index: 90;
+   transform: translateX(-150%);
+   transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+   display: flex;
+   flex-direction: column;
+   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+}
+
+.notification-drawer.show {
+   transform: translateX(0);
+}
+
+.notif-header {
+   padding: 24px 24px 12px 24px;
+   font-size: 24px;
+   font-weight: 700;
+   color: #000;
+   border-bottom: 1px solid transparent;
+}
+
+.notif-scroll-area {
+   flex-grow: 1;
+   overflow-y: auto;
+   padding: 0;
+}
+
+.notif-group-title {
+   padding: 16px 24px 8px 24px;
+   font-size: 16px;
+   font-weight: 700;
+   color: #000;
+}
+
+.notif-item-modern {
+   display: flex;
+   align-items: center;
+   padding: 12px 24px;
+   transition: background-color 0.1s;
+   cursor: pointer;
+}
+
+.notif-item-modern:hover {
+   background-color: #fafafa;
+}
+
+.notif-avatar-modern {
+   width: 44px;
+   height: 44px;
+   border-radius: 50%;
+   object-fit: cover;
+   margin-right: 14px;
+   flex-shrink: 0;
+}
+
+.notif-content-modern {
+   flex-grow: 1;
+   font-size: 14px;
+   line-height: 1.4;
+   margin-right: 12px;
+}
+
+.notif-user-bold {
+   font-weight: 600;
+   color: #000;
+   margin-right: 4px;
+}
+
+.notif-text-light {
+   color: #000;
+}
+
+.notif-time-ago {
+   color: #737373;
+   margin-left: 4px;
+}
+
+.notif-action-modern {
+   flex-shrink: 0;
+}
+
+.btn-follow-modern {
+   background-color: #0095f6;
+   color: white;
+   border: none;
+   border-radius: 8px;
+   padding: 7px 16px;
+   font-size: 14px;
+   font-weight: 600;
+   cursor: pointer;
+}
+
+.notif-post-thumb {
+   width: 44px;
+   height: 44px;
+   object-fit: cover;
+   border-radius: 4px;
+}
+
+
+/* =================================================================
+   10. KEYFRAMES
+   ================================================================= */
 @keyframes popIn {
    from {
       transform: scale(1.1);
@@ -1218,9 +1305,22 @@ select:focus {
    }
 }
 
-/* =========================================
-   11. RESPONSIVE MOBILE (PALING BAWAH)
-   ========================================= */
+@keyframes popUpFade {
+   from {
+      opacity: 0;
+      transform: translateY(10px);
+   }
+
+   to {
+      opacity: 1;
+      transform: translateY(0);
+   }
+}
+
+
+/* =================================================================
+   11. RESPONSIVE MOBILE
+   ================================================================= */
 @media (max-width: 768px) {
    .navigation {
       width: 100%;
@@ -1249,7 +1349,8 @@ select:focus {
 
    .main-container,
    .feed,
-   .profile-container {
+   .profile-container,
+   .explore {
       margin-left: 0;
       width: 100%;
       padding-bottom: 60px;

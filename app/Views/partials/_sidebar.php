@@ -64,10 +64,8 @@
 
 <div class="notification-drawer" id="notifDrawer">
    <div class="notif-header">Notifikasi</div>
+
    <div class="notif-scroll-area" id="notifContent">
-      <div style="padding:20px; text-align:center; color:#999; margin-top: 50px;">
-         <i class="fa fa-circle-o-notch fa-spin fa-2x"></i>
-      </div>
    </div>
 </div>
 
@@ -77,7 +75,7 @@
 </div>
 
 <script>
-   // Fungsi Tutup Modal Global
+
    function closeModal() {
       $('#postModalOverlay').hide();
       $('#postModalContent').html('');
@@ -105,7 +103,6 @@
          });
       }
 
-
       const btnNotif = document.getElementById('btnNotifToggle');
       const drawer = document.getElementById('notifDrawer');
       const notifContent = document.getElementById('notifContent');
@@ -119,7 +116,9 @@
             if (drawer.classList.contains('show')) {
                this.querySelector('i').classList.remove('fa-heart-o');
                this.querySelector('i').classList.add('fa-heart');
-               // Load Data
+
+               notifContent.innerHTML = '<div style="padding:20px; text-align:center; color:#999; margin-top: 50px;"><i class="fa fa-circle-o-notch fa-spin fa-2x"></i></div>';
+
                fetch('<?= site_url('notifications/load') ?>')
                   .then(response => response.text())
                   .then(html => { notifContent.innerHTML = html; })
@@ -127,6 +126,17 @@
             } else {
                this.querySelector('i').classList.remove('fa-heart');
                this.querySelector('i').classList.add('fa-heart-o');
+            }
+         });
+
+         notifContent.addEventListener('click', function (e) {
+            if (e.target.closest('a') || e.target.closest('.notif-content-modern')) {
+               drawer.classList.remove('show');
+               const icon = btnNotif.querySelector('i');
+               if (icon) {
+                  icon.classList.remove('fa-heart');
+                  icon.classList.add('fa-heart-o');
+               }
             }
          });
 
@@ -144,14 +154,13 @@
    });
 
    $(document).ready(function () {
-
       $(document).on('click', '.open-modal', function (e) {
          e.preventDefault();
-
          var url = $(this).attr('href');
 
          $('#notifDrawer').removeClass('show');
          $('#btnNotifToggle i').removeClass('fa-heart').addClass('fa-heart-o');
+
          $('#postModalOverlay').css('display', 'flex');
          $('#postModalContent').html('<div style="color:white; font-size:20px;">Memuat...</div>');
 
