@@ -947,7 +947,7 @@ select:focus {
 
 
 /* =========================================
-   9. DETAIL POST MODAL (POPUP) - [FIXED ALIGNMENT]
+   9. DETAIL POST MODAL (POPUP) 
    ========================================= */
 
 /* Overlay */
@@ -977,7 +977,6 @@ select:focus {
    z-index: 2001;
 }
 
-/* Kartu Utama */
 .detail-card {
    background-color: white;
    width: 100%;
@@ -988,11 +987,9 @@ select:focus {
    border-radius: 4px;
    overflow: hidden;
 
-   /* PERBAIKAN PENTING: Reset text-align ke kiri */
    text-align: left;
 }
 
-/* Kiri: Gambar */
 .detail-img-side {
    width: 60%;
    background-color: black;
@@ -1007,7 +1004,6 @@ select:focus {
    object-fit: contain;
 }
 
-/* Kanan: Info */
 .detail-info-side {
    width: 40%;
    background-color: white;
@@ -1016,7 +1012,6 @@ select:focus {
    position: relative;
 }
 
-/* Header User */
 .detail-header {
    padding: 14px 16px;
    border-bottom: 1px solid #efefef;
@@ -1025,7 +1020,6 @@ select:focus {
    flex-shrink: 0;
 }
 
-/* Area Komentar */
 .detail-comments {
    flex-grow: 1;
    overflow-y: auto;
@@ -1033,18 +1027,15 @@ select:focus {
    scrollbar-width: thin;
    background-color: white;
    text-align: left;
-   /* Memastikan isi komentar rata kiri */
 }
 
 .detail-comments::-webkit-scrollbar {
    width: 0;
 }
 
-/* Item Komentar */
 .comment-item {
    display: flex;
    align-items: flex-start;
-   /* Rata atas */
    margin-bottom: 16px;
    width: 100%;
 }
@@ -1066,7 +1057,6 @@ select:focus {
    word-wrap: break-word;
    white-space: normal;
    text-align: left;
-   /* Pastikan teks rata kiri */
 }
 
 .comment-username {
@@ -1158,122 +1148,75 @@ select:focus {
 }
 
 /* =========================================
-   10. NOTIFICATION DRAWER (SLIDE OUT)
+   10. STYLE MENU OPSI (TITIK TIGA)
    ========================================= */
-.notification-drawer {
-   position: fixed;
+
+.options-overlay {
+   position: absolute;
    top: 0;
-   left: 245px;
-   width: 397px;
-   height: 100vh;
-   background-color: white;
-   border-right: 1px solid #dbdbdb;
-   border-left: 1px solid #dbdbdb;
-   z-index: 90;
-   transform: translateX(-120%);
-   transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-   display: flex;
-   flex-direction: column;
-   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
-}
-
-.notification-drawer.show {
-   transform: translateX(0);
-}
-
-.notif-header {
-   padding: 24px 24px 12px 24px;
-   font-size: 24px;
-   font-weight: 700;
-   color: #000;
-   border-bottom: 1px solid transparent;
-}
-
-.notif-scroll-area {
-   flex-grow: 1;
-   overflow-y: auto;
-   padding: 0;
-}
-
-.notif-group-title {
-   padding: 16px 24px 8px 24px;
-   font-size: 16px;
-   font-weight: 700;
-   color: #000;
-}
-
-.notif-item-modern {
-   display: flex;
+   left: 0;
+   width: 100%;
+   height: 100%;
+   background-color: rgba(0, 0, 0, 0.65);
+   z-index: 2010;
+   display: none;
+   justify-content: center;
    align-items: center;
-   padding: 12px 24px;
-   transition: background-color 0.1s;
-   cursor: pointer;
-}
-
-.notif-item-modern:hover {
-   background-color: #fafafa;
-}
-
-.notif-avatar-modern {
-   width: 44px;
-   height: 44px;
-   border-radius: 50%;
-   object-fit: cover;
-   margin-right: 14px;
-   flex-shrink: 0;
-}
-
-.notif-content-modern {
-   flex-grow: 1;
-   font-size: 14px;
-   line-height: 1.4;
-   margin-right: 12px;
-}
-
-.notif-user-bold {
-   font-weight: 600;
-   color: #000;
-   margin-right: 4px;
-}
-
-.notif-text-light {
-   color: #000;
-}
-
-.notif-time-ago {
-   color: #737373;
-   margin-left: 4px;
-}
-
-.notif-action-modern {
-   flex-shrink: 0;
-}
-
-.btn-follow-modern {
-   background-color: #0095f6;
-   color: white;
-   border: none;
-   border-radius: 8px;
-   padding: 7px 16px;
-   font-size: 14px;
-   font-weight: 600;
-   cursor: pointer;
-}
-
-.notif-post-thumb {
-   width: 44px;
-   height: 44px;
-   object-fit: cover;
    border-radius: 4px;
 }
 
-/* Text loading modal */
-#postModalContent {
-   color: white;
-   text-align: center;
-   min-height: 0;
+.options-card {
+   background-color: white;
+   width: 400px;
+   max-width: 80%;
+   border-radius: 12px;
+   overflow: hidden;
+   display: flex;
+   flex-direction: column;
+   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+   animation: popIn 0.1s ease-out;
 }
 
+.options-btn {
+   background: white;
+   border: none;
+   border-bottom: 1px solid #dbdbdb;
+   padding: 14px;
+   font-size: 14px;
+   cursor: pointer;
+   text-align: center;
+   width: 100%;
+   font-weight: 400;
+   color: #262626;
+   text-decoration: none;
+   display: block;
+   margin: 0;
+}
+
+.options-btn:last-child {
+   border-bottom: none;
+}
+
+.options-btn.danger {
+   color: #ed4956;
+   font-weight: 700;
+}
+
+.options-btn:hover {
+   background-color: #fafafa;
+}
+
+@keyframes popIn {
+   from {
+      transform: scale(1.1);
+      opacity: 0;
+   }
+
+   to {
+      transform: scale(1);
+      opacity: 1;
+   }
+}
 
 /* =========================================
    11. RESPONSIVE MOBILE (PALING BAWAH)

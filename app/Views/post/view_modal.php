@@ -18,7 +18,9 @@
 
    <div class="detail-info-side">
 
-      <header class="detail-header">
+      <header class="detail-header"
+         style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+
          <div style="display:flex; align-items:center;">
             <img
                src="<?= base_url(empty($poster['profile_picture']) ? 'images/avatar.svg' : $poster['profile_picture']) ?>"
@@ -29,8 +31,11 @@
                </a>
             </div>
          </div>
-         <i class="fa fa-ellipsis-h" style="margin-left:auto; cursor:pointer; padding:10px;"
-            onclick="toggleOptions('<?= $post['post_id'] ?>')"></i>
+
+         <button onclick="toggleOptions('<?= $post['post_id'] ?>')"
+            style="background:none; border:none; cursor:pointer; padding:8px;">
+            <i class="fa fa-ellipsis-h" style="color: #262626; font-size: 16px;"></i>
+         </button>
       </header>
 
       <div class="detail-comments">
@@ -99,7 +104,7 @@
 </div>
 
 <script>
-   // Toggle Menu Opsi
+   // Fungsi untuk membuka/tutup menu opsi
    function toggleOptions(id) {
       var menu = document.getElementById('optionsMenu-' + id);
       if (menu.style.display === 'flex') {
