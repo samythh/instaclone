@@ -1,7 +1,6 @@
 <footer class="footer">
     <nav class="footer__nav">
         <ul class="footer__list">
-            <!-- Link-link Footer dari proyek asli -->
             <li class="footer__list-item"><a href="#" class="footer__link">about us</a></li>
             <li class="footer__list-item"><a href="#" class="footer__link">support</a></li>
             <li class="footer__list-item"><a href="#" class="footer__link">blog</a></li>
@@ -16,9 +15,12 @@
     </nav>
     <span class="footer__copyright">© 2025 Instaclone (Migrated to CI4)</span>
 </footer>
+
 <script
   src="https://code.jquery.com/jquery-3.2.1.min.js"
   integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
   crossorigin="anonymous"></script>
+
 <script src="<?= base_url('js/app.js') ?>"></script>
-<!-- Tambahkan script lain yang dibutuhkan di footer -->
+
+<script src="<?= base_url('js/like_ajax.js') ?>"></script>

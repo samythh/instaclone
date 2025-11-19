@@ -1,9 +1,10 @@
-<?php namespace App\Controllers;
+<?php
+namespace App\Controllers;
+// File: app/Controllers/FeedController.php
 
 use App\Models\PostModel;
 use App\Models\UserModel;
 use CodeIgniter\Controller;
-use CodeIgniter\Database\RawSql; // Digunakan untuk query khusus
 
 class FeedController extends Controller
 {
@@ -12,59 +13,66 @@ class FeedController extends Controller
 
     public function __construct()
     {
-        // Memuat Model yang diperlukan
         $this->postModel = new PostModel();
         $this->userModel = new UserModel();
-        helper(['url']);
+        helper(['url', 'date']);
     }
 
-    // =======================================================
-    // 1. TAMPILAN FEED UTAMA (Menggantikan feed.php logic)
-    // =======================================================
-    // Parameter $currentUsername didapat dari URL Segment (lihat Routes.php)
-    public function index($currentUsername)
+    // --- TAMBAHKAN FUNGSI INI ---
+    public function handleEmptyFeed()
     {
-        // Pastikan user sudah login (Opsional jika Filter sudah diterapkan)
-        if (session()->get('username') !== $currentUsername || !session()->get('isLoggedIn')) {
-             return redirect()->to(site_url('/'));
+        $username = session()->get('username');
+
+        // Jika user login, arahkan ke feed miliknya yang benar
+        if ($username) {
+            return redirect()->to(site_url('feed/' . $username));
         }
 
-        // --- Kunci Migrasi Query Kompleks dari feed.php ---
-        // Query ini mereplikasi logika: "Ambil post terbaru dari SEMUA user yang diikuti oleh $currentUsername"
-        
-        $db = \Config\Database::connect();
-        $feedData = $db->table('followings f')
-            ->select('
-                f.following AS follower,
-                u.profile_picture AS following_dp,
-                p.post_id AS post_id,
-                p.photo AS photo, 
-                p.likes,
-                p.comments,
-                DATEDIFF(NOW(), p.time_stamp) AS time_stamp,
-                (
-                    SELECT 1
-                    FROM likes
-                    WHERE likes.post_id = p.post_id AND likes.likername = f.username
-                ) AS is_liked
-            ')
-            ->join('users u', 'u.username = f.following', 'inner')
-            // Query untuk mendapatkan HANYA post terbaru dari setiap following
-            ->join('posts p', new RawSql('p.post_id = (SELECT posts.post_id FROM posts WHERE posts.username = f.following ORDER BY posts.time_stamp DESC LIMIT 1)'), 'inner')
-            ->where('f.username', $currentUsername)
-            ->groupBy('f.following')
-            ->get()
-            ->getResultArray();
+        // Jika tidak login, kembalikan ke halaman login
+        return redirect()->to(site_url('/'));
+    }
+    // -----------------------------
 
-        // Data yang dikirim ke View
+    public function index($currentUsername)
+    {
+        // ... (kode index yang sudah ada biarkan saja) ...
+        // Cek sesi login
+        if (session()->get('username') !== $currentUsername || !session()->get('isLoggedIn')) {
+            return redirect()->to(site_url('/'));
+        }
+
+        $db = \Config\Database::connect();
+
+        // ... (Query builder Anda yang sudah benar) ...
+        $builder = $db->table('posts p');
+        $builder->select('
+            p.username AS follower,
+            u.profile_picture AS following_dp,
+            p.post_id AS post_id,
+            p.photo AS photo, 
+            p.likes,
+            p.comments,
+            DATEDIFF(NOW(), p.time_stamp) AS time_stamp,
+            (
+                SELECT 1
+                FROM likes
+                WHERE likes.post_id = p.post_id AND likes.likername = ' . $db->escape($currentUsername) . '
+            ) AS is_liked
+        ');
+        $builder->join('users u', 'u.username = p.username', 'inner');
+        $builder->groupStart();
+        $builder->where('p.username', $currentUsername);
+        $builder->orWhere("p.username IN (SELECT following FROM followings WHERE username = " . $db->escape($currentUsername) . ")");
+        $builder->groupEnd();
+        $builder->orderBy('p.time_stamp', 'DESC');
+
+        $feedData = $builder->get()->getResultArray();
+
         $data = [
             'feedData' => $feedData,
             'currentUsername' => $currentUsername
         ];
 
-        // Memuat View Feed
         return view('feed/feed_index', $data);
     }
-    
-    // ... Fungsi lain seperti Explore dan Post akan ditambahkan di Controller lain ...
 }

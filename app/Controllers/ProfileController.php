@@ -1,50 +1,50 @@
-<?php namespace App\Controllers;
+<?php
+namespace App\Controllers;
 
 use App\Models\UserModel;
-use App\Models\PostModel; 
+use App\Models\PostModel;
+use App\Models\NotificationModel; // TAMBAHAN BARU
 use CodeIgniter\Controller;
-use CodeIgniter\Database\RawSql; 
+use CodeIgniter\Database\RawSql;
 
 class ProfileController extends Controller
 {
     protected $userModel;
     protected $postModel;
-    protected $db; // Untuk mengakses Query Builder/Raw SQL
+    protected $notificationModel; // TAMBAHAN BARU
+    protected $db;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
         $this->postModel = new PostModel();
-        $this->db = \Config\Database::connect(); // Menginisialisasi database connection
+        $this->notificationModel = new NotificationModel(); // TAMBAHAN BARU
+        $this->db = \Config\Database::connect();
         helper(['url', 'form']);
     }
 
     // =======================================================
-    // 1. TAMPILAN PROFILE (Menggantikan profile.php)
+    // 1. TAMPILAN PROFILE
     // =======================================================
-    // $profileUsername: user yang profilnya sedang dilihat (e.g., 'jane_doe')
     public function index($profileUsername)
     {
         $currentUsername = session()->get('username');
-        
-        // 1. Ambil data user yang dilihat
+
         $profileUser = $this->userModel->find($profileUsername);
 
         if (!$profileUser) {
             return redirect()->to(site_url("feed/{$currentUsername}"))->with('error', 'Profil tidak ditemukan.');
         }
 
-        // 2. Cek status follow (Logika profile.php - is_follower)
         $isFollowing = $this->db->table('followings')
-                                ->where('username', $currentUsername)
-                                ->where('following', $profileUsername)
-                                ->countAllResults() > 0; // Menggunakan countAllResults untuk efisiensi
+            ->where('username', $currentUsername)
+            ->where('following', $profileUsername)
+            ->countAllResults() > 0;
 
-        // 3. Ambil semua postingan user
         $posts = $this->postModel->where('username', $profileUsername)
-                                 ->orderBy('time_stamp', 'DESC')
-                                 ->findAll();
-        
+            ->orderBy('time_stamp', 'DESC')
+            ->findAll();
+
         $data = [
             'profileUser' => $profileUser,
             'currentUsername' => $currentUsername,
@@ -57,92 +57,82 @@ class ProfileController extends Controller
     }
 
     // =======================================================
-    // 2. FOLLOW / UNFOLLOW (Menggantikan follow.php dan unfollow.php)
+    // 2. FOLLOW / UNFOLLOW (DENGAN NOTIFIKASI)
     // =======================================================
-    // $targetUsername: user yang akan di-follow/unfollow
     public function toggleFollow($targetUsername)
     {
-        $follower = session()->get('username'); // User yang melakukan aksi
+        $follower = session()->get('username');
         $followingsTable = $this->db->table('followings');
-        
-        // Cek status follow saat ini
+
         $isFollowing = $followingsTable->where('username', $follower)
-                                       ->where('following', $targetUsername)
-                                       ->countAllResults() > 0;
+            ->where('following', $targetUsername)
+            ->countAllResults() > 0;
 
         if ($isFollowing) {
-            // UNFOLLOW (Logika unfollow.php - DELETE)
-            $followingsTable->where('username', $follower)
-                            ->where('following', $targetUsername)
-                            ->delete();
+            // --- UNFOLLOW ---
+            $followingsTable->where('username', $follower)->where('following', $targetUsername)->delete();
 
-            // Decrement follower counter di user target
-            $this->userModel->set('followers', new RawSql('followers - 1'))
-                            ->where('username', $targetUsername)
-                            ->update();
+            $this->userModel->set('followers', new RawSql('followers - 1'))->where('username', $targetUsername)->update();
+            $this->userModel->set('followings', new RawSql('followings - 1'))->where('username', $follower)->update();
 
-            // Decrement following counter di user yang melakukan aksi
-            $this->userModel->set('followings', new RawSql('followings - 1'))
-                            ->where('username', $follower)
-                            ->update();
-            
+            // Hapus notifikasi follow sebelumnya
+            $this->notificationModel->where('from_username', $follower)
+                ->where('to_username', $targetUsername)
+                ->where('type', 'follow')
+                ->delete();
+
             session()->setFlashdata('msg', "Berhasil unfollow {$targetUsername}");
 
         } else {
-            // FOLLOW (Logika follow.php - INSERT)
+            // --- FOLLOW ---
             $followingsTable->insert(['username' => $follower, 'following' => $targetUsername]);
 
-            // Increment follower counter di user target
-            $this->userModel->set('followers', new RawSql('followers + 1'))
-                            ->where('username', $targetUsername)
-                            ->update();
-            
-            // Increment following counter di user yang melakukan aksi
-            $this->userModel->set('followings', new RawSql('followings + 1'))
-                            ->where('username', $follower)
-                            ->update();
+            $this->userModel->set('followers', new RawSql('followers + 1'))->where('username', $targetUsername)->update();
+            $this->userModel->set('followings', new RawSql('followings + 1'))->where('username', $follower)->update();
+
+            // KIRIM NOTIFIKASI FOLLOW
+            if ($follower !== $targetUsername) {
+                $this->notificationModel->save([
+                    'to_username' => $targetUsername,
+                    'from_username' => $follower,
+                    'type' => 'follow',
+                    'post_id' => null, // Follow tidak terkait post
+                    'message' => ''
+                ]);
+            }
 
             session()->setFlashdata('msg', "Berhasil follow {$targetUsername}");
         }
 
-        // Redirect kembali ke halaman profil yang sedang dilihat
-        return redirect()->back(); 
+        return redirect()->back();
     }
 
     // =======================================================
-    // 3. TAMPILAN EDIT PROFILE (Menggantikan edit-profile.php)
+    // 3. EDIT PROFILE
     // =======================================================
     public function edit()
     {
         $currentUsername = session()->get('username');
-        
         $user = $this->userModel->find($currentUsername);
-        
-        $data = [
-            'user' => $user,
-            'currentUsername' => $currentUsername
-        ];
 
+        $data = ['user' => $user, 'currentUsername' => $currentUsername];
         return view('profile/edit_profile', $data);
     }
 
     // =======================================================
-    // 4. SUBMIT EDIT PROFILE (Implementasi Hashing Aman)
+    // 4. UPDATE PROFILE
     // =======================================================
     public function updateProfile()
     {
         $currentUsername = session()->get('username');
         $session = session();
-
-        // 1. Ambil data user lama untuk mendapatkan hash password yang tersimpan
         $oldUser = $this->userModel->find($currentUsername);
-        
-        // 2. Definisikan Aturan Validasi (Password diizinkan kosong)
+
         $rules = [
-            'username' => 'required|min_length[3]|max_length[25]', 
-            'email'    => 'required|valid_email',
-            'name'     => 'required|max_length[25]',
-            'password' => 'permit_empty|min_length[8]|max_length[255]', // Password diizinkan kosong
+            'username' => 'required|min_length[3]|max_length[25]',
+            'email' => 'required|valid_email',
+            'name' => 'required|max_length[25]',
+            'password' => 'permit_empty|min_length[8]|max_length[255]',
         ];
 
         if (!$this->validate($rules)) {
@@ -150,30 +140,30 @@ class ProfileController extends Controller
             return redirect()->back()->withInput();
         }
 
-        // 3. Siapkan Data Update
         $data = [
-            'username'     => $this->request->getPost('username'),
+            'username' => $this->request->getPost('username'),
             'profile_name' => $this->request->getPost('name'),
-            'email'        => $this->request->getPost('email'),
-            'bio'          => $this->request->getPost('bio')
+            'email' => $this->request->getPost('email'),
+            'bio' => $this->request->getPost('bio')
         ];
-        
-        $newPassword = $this->request->getPost('password');
 
-        // 4. LOGIKA KRITIS: Amankan Password
+        // Handle Foto Profil Baru (Opsional)
+        $file = $this->request->getFile('image');
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            $newName = $file->getRandomName();
+            $file->move(ROOTPATH . 'public/photos', $newName);
+            $data['profile_picture'] = 'photos/' . $newName;
+        }
+
+        $newPassword = $this->request->getPost('password');
         if (!empty($newPassword)) {
-            // Jika user mengisi field password, hash password baru tersebut
             $data['password'] = password_hash($newPassword, PASSWORD_DEFAULT);
         } else {
-            // Jika field password kosong, gunakan password hash lama
             $data['password'] = $oldUser['password'];
         }
-        
-        // 5. Lakukan Update
-        // Note: CodeIgniter menangani perubahan Primary Key (username) jika Anda menggunakan update($oldId, $newData)
-        $this->userModel->update($currentUsername, $data); 
 
-        // Update session jika username atau profile name diubah
+        $this->userModel->update($currentUsername, $data);
+
         $session->set([
             'username' => $data['username'],
             'profile_name' => $data['profile_name']

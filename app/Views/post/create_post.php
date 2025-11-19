@@ -1,76 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Buat Postingan | Instaclone</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-        <link rel="shortcut icon" href="<?= base_url('images/favicon.ico') ?>" type="image/x-icon">
-        <link href="<?= base_url('css/style.css') ?>" rel="stylesheet">
-    </head>
-    <body style="margin-top:50px">
 
-    <nav class="navigation">
-        <a href="<?= site_url('feed/' . $currentUsername) ?>">
-            <img 
-                src="<?= base_url('images/navLogo.png') ?>"
-                alt="logo"
-                title="logo"
-                class="navigation__logo"
-            />
-        </a>
-        <div class="navigation__icons">
-            <a href="<?= site_url('explore') ?>" class="navigation__link">
-                <i class="fa fa-compass"></i>
-            </a>
-            <a href="#" class="navigation__link">
-                <i class="fa fa-heart-o"></i>
-            </a>
-            <a href="<?= site_url('profile/' . $currentUsername) ?>" class="navigation__link">
-                <i class="fa fa-user-o"></i>
-            </a>
-        </div>
-    </nav>
-    
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-2"></div>
-            <div class="col-sm-8">
-                
-                <li class="people__person">
-                    <div class="photo__header">
-                        <div class="people__avatar-container">
-                        <img 
-                            src="<?= base_url(empty($profilePicture) ? 'images/avatar.svg' : $profilePicture) ?>"
-                            class="people__avatar"
-                        />
-                        </div>
-                        <div class="people__info">
-                            <span class="people__username"><?= esc($currentUsername) ?></span>
-                            <span class="people__full-name"><?= esc($profileName) ?></span>
-                        </div>
-                    </div>
-                </li>
+<head>
+    <meta charset="UTF-8">
+    <title>Buat Postingan | Instaclone</title>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="<?= base_url('images/favicon.ico') ?>" type="image/x-icon">
+    <link href="<?= base_url('css/style.css') ?>" rel="stylesheet">
+    <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+</head>
 
-                <?php if(session()->getFlashdata('error')): ?>
-                    <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-                <?php endif; ?>
+<body>
 
-                <div class="your-class">
-                <form action="<?= site_url('post/store') ?>" method="post" enctype="multipart/form-data">
-                    <textarea cols="40" name="discription" rows="10" style="position:relative; width:100%;" placeholder="Tulis deskripsi Anda di sini"></textarea><br>
-                    <label>Pilih gambar untuk diunggah.</label><br><br>
-                    <input type="file" name="fileToUpload" id="fileToUpload" required>
-                    <input type="submit" value="Post" style="float:right; background-color: #3897f0; color:#fff" name="submit">
-                </form>
+    <?= $this->include('partials/_sidebar') ?>
+
+    <main class="main-container">
+
+        <div class="create-overlay">
+
+            <button class="close-modal" onclick="window.location.href='<?= site_url('feed/' . $currentUsername) ?>'">
+                <i class="fa fa-times"></i>
+            </button>
+
+            <form action="<?= site_url('post/store') ?>" method="post" enctype="multipart/form-data" class="create-card"
+                id="postForm">
+
+                <div class="create-header">
+                    <button type="button" class="header-btn" id="btnBack" style="display:none;">
+                        <i class="fa fa-arrow-left"></i>
+                    </button>
+                    <div style="width: 30px;" id="spacerLeft"></div>
+
+                    <span class="header-title" id="headerTitle">Buat postingan baru</span>
+
+                    <button type="submit" class="header-btn" id="btnShare" style="display:none;">Bagikan</button>
+                    <div style="width: 30px;" id="spacerRight"></div>
                 </div>
 
-            </div>
-            <div class="col-sm-2"></div>
+                <div class="create-body">
+
+                    <div class="step-select" id="step1">
+                        <div class="upload-icon-circle">
+                            <i class="fa fa-picture-o"></i>
+                            <i class="fa fa-play-circle-o" style="font-size: 50px; margin-left: -20px;"></i>
+                        </div>
+                        <p style="font-size: 20px; margin-bottom: 20px; font-weight: 300;">Seret foto dan video di sini
+                        </p>
+
+                        <label for="fileToUpload" class="btn-select-computer">Pilih dari komputer</label>
+                        <input type="file" name="fileToUpload" id="fileToUpload" accept="image/*" style="display:none;"
+                            onchange="handleFileSelect(this)">
+                    </div>
+
+                    <div class="step-details" id="step3">
+                        <div class="details-image-container">
+                            <img id="previewImageSmall" class="preview-image-full" src="" />
+                        </div>
+
+                        <div class="details-form-container">
+                            <div class="user-info-mini">
+                                <img src="<?= base_url(empty($profilePicture) ? 'images/avatar.svg' : $profilePicture) ?>"
+                                    class="avatar-mini" />
+                                <span class="username-mini"><?= esc($currentUsername) ?></span>
+                            </div>
+                            <textarea name="discription" class="caption-input"
+                                placeholder="Tulis keterangan..."></textarea>
+
+                            <div style="border-top: 1px solid #efefef; margin-top: 10px; padding-top: 10px;">
+                                <div
+                                    style="display:flex; justify-content:space-between; margin-bottom:10px; color:#262626;">
+                                    <span>Tambahkan lokasi</span>
+                                    <i class="fa fa-map-marker"></i>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; color:#262626;">
+                                    <span>Aksesibilitas</span>
+                                    <i class="fa fa-chevron-down"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
         </div>
-    </div>
-    
-    <?= $this->include('partials/_footer') ?>
-    </body>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="<?= base_url('js/app.js') ?>"></script>
+    <script>
+        const step1 = document.getElementById('step1');
+        const step3 = document.getElementById('step3');
+
+        const btnBack = document.getElementById('btnBack');
+        const btnShare = document.getElementById('btnShare');
+
+        const headerTitle = document.getElementById('headerTitle');
+        const spacerLeft = document.getElementById('spacerLeft');
+        const spacerRight = document.getElementById('spacerRight');
+
+        const previewSmall = document.getElementById('previewImageSmall');
+
+        function handleFileSelect(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    previewSmall.src = e.target.result;
+
+                    goToStep(3);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        btnBack.addEventListener('click', function () {
+            goToStep(1);
+            document.getElementById('fileToUpload').value = ""; // Reset input
+        });
+
+        // Logika Perpindahan Tampilan
+        function goToStep(step) {
+            step1.style.display = 'none';
+            step3.style.display = 'none';
+
+            btnBack.style.display = 'none';
+            btnShare.style.display = 'none';
+            spacerLeft.style.display = 'none';
+            spacerRight.style.display = 'none';
+
+            if (step === 1) {
+                step1.style.display = 'block';
+                headerTitle.innerText = "Buat postingan baru";
+
+                spacerLeft.style.display = 'block';
+                spacerRight.style.display = 'block';
+
+                // Ukuran kartu default
+                document.querySelector('.create-card').style.maxWidth = "750px";
+            }
+            else if (step === 3) {
+
+                step3.style.display = 'flex';
+                headerTitle.innerText = "Buat postingan baru";
+
+                btnBack.style.display = 'block';
+                btnShare.style.display = 'block';
+
+                document.querySelector('.create-card').style.maxWidth = "900px";
+            }
+        }
+    </script>
+</body>
+
 </html>
