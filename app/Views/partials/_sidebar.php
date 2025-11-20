@@ -1,4 +1,10 @@
-<?php $currentUser = session()->get('username'); ?>
+<?php
+$currentUser = session()->get('username');
+
+// Ambil foto dari session. Jika kosong, pakai default.
+$sessPic = session()->get('profile_picture');
+$userProfilePic = !empty($sessPic) ? $sessPic : 'images/avatar.svg';
+?>
 
 <nav class="navigation">
    <a href="<?= site_url('feed/' . $currentUser) ?>" class="navigation__logo-link">
@@ -31,19 +37,22 @@
             <i class="fa fa-paper-plane-o"></i> <span class="navigation__text">Pesan</span>
          </a>
       </li>
+
       <li class="navigation__list-item">
          <a href="#" class="navigation__link" id="btnNotifToggle">
             <i class="fa fa-heart-o"></i> <span class="navigation__text">Notifikasi</span>
          </a>
       </li>
+
       <li class="navigation__list-item">
          <a href="<?= site_url('post/create') ?>" class="navigation__link">
             <i class="fa fa-plus-square-o"></i> <span class="navigation__text">Buat</span>
          </a>
       </li>
+
       <li class="navigation__list-item">
          <a href="<?= site_url('profile/' . $currentUser) ?>" class="navigation__link navigation__link--profile">
-            <img src="<?= base_url('images/avatar.svg') ?>" alt="Profile">
+            <img src="<?= base_url($userProfilePic) ?>" alt="Profile">
             <span class="navigation__text" style="font-weight:600;">Profil</span>
          </a>
       </li>
@@ -78,6 +87,7 @@
 
    document.addEventListener('DOMContentLoaded', function () {
 
+      // A. Logic Tombol Lainnya
       const moreBtn = document.getElementById('moreBtn');
       const morePopup = document.getElementById('morePopup');
       if (moreBtn && morePopup) {
@@ -98,6 +108,7 @@
          });
       }
 
+      // B. Logic Notifikasi Drawer
       const btnNotif = document.getElementById('btnNotifToggle');
       const drawer = document.getElementById('notifDrawer');
       const notifContent = document.getElementById('notifContent');
@@ -112,12 +123,13 @@
                this.querySelector('i').classList.remove('fa-heart-o');
                this.querySelector('i').classList.add('fa-heart');
 
+               // Tampilkan spinner saat loading
                notifContent.innerHTML = '<div style="padding:20px; text-align:center; color:#999; margin-top: 50px;"><i class="fa fa-circle-o-notch fa-spin fa-2x"></i></div>';
 
                fetch('<?= site_url('notifications/load') ?>')
                   .then(response => response.text())
                   .then(html => { notifContent.innerHTML = html; })
-                  .catch(err => console.error(err));
+                  .catch(err => console.error('Error loading notifs'));
             } else {
                this.querySelector('i').classList.remove('fa-heart');
                this.querySelector('i').classList.add('fa-heart-o');
@@ -148,6 +160,7 @@
       }
    });
 
+   // C. Logic Modal Popup
    $(document).ready(function () {
       $(document).on('click', '.open-modal', function (e) {
          e.preventDefault();
