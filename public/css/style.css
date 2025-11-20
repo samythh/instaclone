@@ -1329,6 +1329,17 @@ select:focus {
    cursor: pointer;
 }
 
+.btn-following-modern {
+   background-color: #efefef;
+   color: #000;
+   border: 1px solid #dbdbdb;
+   border-radius: 8px;
+   padding: 7px 16px;
+   font-size: 14px;
+   font-weight: 600;
+   cursor: pointer;
+}
+
 .notif-post-thumb {
    width: 44px;
    height: 44px;

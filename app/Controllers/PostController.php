@@ -78,8 +78,8 @@ class PostController extends Controller
          'comments' => 0
       ]);
 
-      $this->userModel->set('posts', new RawSql('posts + 1'))
-         ->where('id', $currentId)
+      $this->userModel->set('posts_count', new RawSql('posts_count + 1'))
+         ->where('user_id', $currentId)
          ->update();
 
       return redirect()->to(site_url('feed/' . $currentUsername));
@@ -97,7 +97,7 @@ class PostController extends Controller
       $isLikedNow = false;
 
       if ($checkLike) {
-         $this->likeModel->where('id', $checkLike['id'])->delete();
+         $this->likeModel->where('like_id', $checkLike['like_id'])->delete();
          $this->postModel->set('likes', new RawSql('likes - 1'))->where('post_id', $postId)->update();
          $isLikedNow = false;
 
@@ -223,8 +223,8 @@ class PostController extends Controller
 
       $this->postModel->delete($postId);
 
-      $this->userModel->set('posts', new RawSql('posts - 1'))
-         ->where('id', $currentId)
+      $this->userModel->set('posts_count', new RawSql('posts_count - 1'))
+         ->where('user_id', $currentId)
          ->update();
 
       return redirect()->to(site_url('profile/' . $currentUsername));

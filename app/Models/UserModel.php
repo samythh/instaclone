@@ -5,7 +5,7 @@ use CodeIgniter\Model;
 class UserModel extends Model
 {
     protected $table = 'users';
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'user_id';
     protected $returnType = 'array';
     protected $allowedFields = [
         'username',
@@ -16,6 +16,6 @@ class UserModel extends Model
         'bio',
         'followers',
         'followings',
-        'posts'
+        'posts_count'
     ];
 }

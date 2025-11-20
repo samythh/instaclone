@@ -11,7 +11,7 @@ class CommentModel extends Model
     public function getCommentsByPost($postId)
     {
         return $this->select('comments.*, users.username as commentername, users.profile_picture')
-            ->join('users', 'users.id = comments.user_id')
+            ->join('users', 'users.user_id = comments.user_id')
             ->where('post_id', $postId)
             ->findAll();
     }

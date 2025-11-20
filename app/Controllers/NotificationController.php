@@ -19,48 +19,40 @@ class NotificationController extends Controller
 
    public function index()
    {
+      $currentId = session()->get('id');
       $currentUsername = session()->get('username');
 
-      // Cek Login
-      if (!$currentUsername) {
+      if (!$currentId) {
          return redirect()->to(site_url('/'));
       }
 
-      // Ambil data user untuk sidebar
-      $user = $this->userModel->find($currentUsername);
+      $user = $this->userModel->find($currentId);
 
-      // Ambil data notifikasi dari Model
-      $notifs = $this->notificationModel->getNotifications($currentUsername);
+      $notifs = $this->notificationModel->getNotifications($currentId);
 
       $data = [
          'currentUsername' => $currentUsername,
-         'profilePicture' => $user['profile_picture'], // Untuk sidebar
-         'profileName' => $user['profile_name'],    // Untuk sidebar
+         'profilePicture' => $user['profile_picture'],
+         'profileName' => $user['profile_name'],
          'notifications' => $notifs
       ];
 
       return view('notification/index', $data);
    }
 
-   // =======================================================
-   // FUNGSI AJAX: AMBIL KONTEN NOTIFIKASI SAJA
-   // =======================================================
    public function loadNotifications()
    {
-      $currentUsername = session()->get('username');
+      $currentId = session()->get('id');
 
-      if (!$currentUsername)
-         return ""; // Kosong jika tidak login
+      if (!$currentId)
+         return "";
 
-      $notifs = $this->notificationModel->getNotifications($currentUsername);
+      $notifs = $this->notificationModel->getNotifications($currentId);
 
       $data = [
          'notifications' => $notifs
       ];
 
-      // Kita return view parsial baru
       return view('notification/content', $data);
    }
-
-   
 }

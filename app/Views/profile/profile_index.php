@@ -47,7 +47,7 @@
                     </div>
 
                     <ul class="profile__stats">
-                        <li><span class="stat-number"><?= esc($profileUser['posts']) ?></span> kiriman</li>
+                        <li><span class="stat-number"><?= esc($profileUser['posts_count']) ?></span> kiriman</li>
                         <li><a href="<?= site_url('explore/followers/' . $profileUser['username']) ?>"><span
                                     class="stat-number"><?= esc($profileUser['followers']) ?></span> pengikut</a></li>
                         <li><a href="<?= site_url('explore/followings/' . $profileUser['username']) ?>"><span

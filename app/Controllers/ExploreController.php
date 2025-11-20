@@ -37,7 +37,7 @@ class ExploreController extends Controller
         if ($target && $type !== 'search') {
             $user = $this->userModel->where('username', $target)->first();
             if ($user) {
-                $targetId = $user['id'];
+                $targetId = $user['user_id'];
             }
         }
 
@@ -81,10 +81,10 @@ class ExploreController extends Controller
     {
         return $this->db->table('followings f')
             ->select('u.username AS usernamee, u.profile_name, u.profile_picture, 
-                      (SELECT 1 FROM followings WHERE follower_id = ' . $this->db->escape($currentId) . ' AND followed_id = u.id) AS isFollowing')
-            ->join('users u', 'u.id = f.follower_id', 'inner')
+                      (SELECT 1 FROM followings WHERE follower_id = ' . $this->db->escape($currentId) . ' AND followed_id = u.user_id) AS isFollowing')
+            ->join('users u', 'u.user_id = f.follower_id', 'inner')
             ->where('f.followed_id', $targetId)
-            ->where('u.id !=', $currentId)
+            ->where('u.user_id !=', $currentId)
             ->get()
             ->getResultArray();
     }
@@ -93,10 +93,10 @@ class ExploreController extends Controller
     {
         return $this->db->table('followings f')
             ->select('u.username AS usernamee, u.profile_name, u.profile_picture, 
-                      (SELECT 1 FROM followings WHERE follower_id = ' . $this->db->escape($currentId) . ' AND followed_id = u.id) AS isFollowing')
-            ->join('users u', 'u.id = f.followed_id', 'inner')
+                      (SELECT 1 FROM followings WHERE follower_id = ' . $this->db->escape($currentId) . ' AND followed_id = u.user_id) AS isFollowing')
+            ->join('users u', 'u.user_id = f.followed_id', 'inner')
             ->where('f.follower_id', $targetId)
-            ->where('u.id !=', $currentId)
+            ->where('u.user_id !=', $currentId)
             ->get()
             ->getResultArray();
     }
@@ -105,7 +105,7 @@ class ExploreController extends Controller
     {
         $builder = $this->db->table('users u')
             ->select('u.username AS usernamee, u.profile_name, u.profile_picture, 
-                      (SELECT 1 FROM followings WHERE follower_id = ' . $this->db->escape($currentId) . ' AND followed_id = u.id) AS isFollowing');
+                      (SELECT 1 FROM followings WHERE follower_id = ' . $this->db->escape($currentId) . ' AND followed_id = u.user_id) AS isFollowing');
 
         if (!empty($searchTerm)) {
             $builder->groupStart()
@@ -114,8 +114,7 @@ class ExploreController extends Controller
                 ->groupEnd();
         }
 
-        $builder->where('u.id !=', $currentId);
-
+        $builder->where('u.user_id !=', $currentId);
         $builder->limit(20);
 
         return $builder->get()->getResultArray();

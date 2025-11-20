@@ -33,7 +33,7 @@ class AuthController extends Controller
         if ($user) {
             if (password_verify($password, $user['password'])) {
                 $sessData = [
-                    'id' => $user['id'],
+                    'id' => $user['user_id'],
                     'username' => $user['username'],
                     'profile_name' => $user['profile_name'],
                     'profile_picture' => $user['profile_picture'],

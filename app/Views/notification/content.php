@@ -7,7 +7,7 @@
    </div>
 <?php else: ?>
 
-   <div class="notif-group-title">Bulan ini</div>
+   <div class="notif-group-title">Terbaru</div>
 
    <?php foreach ($notifications as $notif): ?>
       <div class="notif-item-modern">
@@ -32,12 +32,13 @@
             <span class="notif-time-ago">
                <?php
                $time = strtotime($notif['created_at']);
-               $diff = time() - $time;
+               $diff = abs(time() - $time);
+
                if ($diff < 60)
                   echo $diff . 'd';
-               else if ($diff < 3600)
+               elseif ($diff < 3600)
                   echo floor($diff / 60) . 'm';
-               else if ($diff < 86400)
+               elseif ($diff < 86400)
                   echo floor($diff / 3600) . 'j';
                else
                   echo floor($diff / 86400) . 'h';
@@ -47,11 +48,25 @@
 
          <div class="notif-action-modern">
             <?php if ($notif['type'] == 'follow'): ?>
-               <a href="<?= site_url('profile/toggleFollow/' . $notif['from_username']) ?>" class="btn-follow-modern">Ikuti</a>
+
+               <?php if (isset($notif['is_following']) && $notif['is_following'] > 0): ?>
+                  <button class="btn-following-modern ajax-follow"
+                     data-url="<?= site_url('profile/toggleFollow/' . $notif['from_username']) ?>">
+                     Mengikuti
+                  </button>
+               <?php else: ?>
+                  <button class="btn-follow-modern ajax-follow"
+                     data-url="<?= site_url('profile/toggleFollow/' . $notif['from_username']) ?>">
+                     Ikuti
+                  </button>
+               <?php endif; ?>
+
             <?php elseif (!empty($notif['post_photo'])): ?>
-               <a href="<?= site_url('post/detail/' . $notif['post_id']) ?>" class="open-modal">
+
+               <a href="<?= site_url('post/detail/' . $notif['post_id']) ?>">
                   <img src="<?= base_url($notif['post_photo']) ?>" class="notif-post-thumb">
                </a>
+
             <?php endif; ?>
          </div>
 

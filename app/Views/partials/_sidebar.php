@@ -1,7 +1,5 @@
 <?php
 $currentUser = session()->get('username');
-
-// Ambil foto dari session. Jika kosong, pakai default.
 $sessPic = session()->get('profile_picture');
 $userProfilePic = !empty($sessPic) ? $sessPic : 'images/avatar.svg';
 ?>
@@ -37,19 +35,16 @@ $userProfilePic = !empty($sessPic) ? $sessPic : 'images/avatar.svg';
             <i class="fa fa-paper-plane-o"></i> <span class="navigation__text">Pesan</span>
          </a>
       </li>
-
       <li class="navigation__list-item">
          <a href="#" class="navigation__link" id="btnNotifToggle">
             <i class="fa fa-heart-o"></i> <span class="navigation__text">Notifikasi</span>
          </a>
       </li>
-
       <li class="navigation__list-item">
          <a href="<?= site_url('post/create') ?>" class="navigation__link">
             <i class="fa fa-plus-square-o"></i> <span class="navigation__text">Buat</span>
          </a>
       </li>
-
       <li class="navigation__list-item">
          <a href="<?= site_url('profile/' . $currentUser) ?>" class="navigation__link navigation__link--profile">
             <img src="<?= base_url($userProfilePic) ?>" alt="Profile">
@@ -87,7 +82,6 @@ $userProfilePic = !empty($sessPic) ? $sessPic : 'images/avatar.svg';
 
    document.addEventListener('DOMContentLoaded', function () {
 
-      // A. Logic Tombol Lainnya
       const moreBtn = document.getElementById('moreBtn');
       const morePopup = document.getElementById('morePopup');
       if (moreBtn && morePopup) {
@@ -108,7 +102,6 @@ $userProfilePic = !empty($sessPic) ? $sessPic : 'images/avatar.svg';
          });
       }
 
-      // B. Logic Notifikasi Drawer
       const btnNotif = document.getElementById('btnNotifToggle');
       const drawer = document.getElementById('notifDrawer');
       const notifContent = document.getElementById('notifContent');
@@ -123,13 +116,14 @@ $userProfilePic = !empty($sessPic) ? $sessPic : 'images/avatar.svg';
                this.querySelector('i').classList.remove('fa-heart-o');
                this.querySelector('i').classList.add('fa-heart');
 
-               // Tampilkan spinner saat loading
                notifContent.innerHTML = '<div style="padding:20px; text-align:center; color:#999; margin-top: 50px;"><i class="fa fa-circle-o-notch fa-spin fa-2x"></i></div>';
 
                fetch('<?= site_url('notifications/load') ?>')
                   .then(response => response.text())
-                  .then(html => { notifContent.innerHTML = html; })
-                  .catch(err => console.error('Error loading notifs'));
+                  .then(html => {
+                     notifContent.innerHTML = html;
+                  })
+                  .catch(err => console.error(err));
             } else {
                this.querySelector('i').classList.remove('fa-heart');
                this.querySelector('i').classList.add('fa-heart-o');
@@ -137,6 +131,39 @@ $userProfilePic = !empty($sessPic) ? $sessPic : 'images/avatar.svg';
          });
 
          notifContent.addEventListener('click', function (e) {
+            if (e.target.classList.contains('ajax-follow')) {
+               e.preventDefault();
+               e.stopPropagation();
+
+               const btn = e.target;
+               const url = btn.getAttribute('data-url');
+               const originalText = btn.innerText;
+
+               btn.innerText = '...';
+               btn.style.opacity = '0.7';
+
+               fetch(url)
+                  .then(response => {
+                     if (response.ok) {
+                        if (originalText === 'Ikuti') {
+                           btn.innerText = 'Mengikuti';
+                           btn.className = 'btn-following-modern ajax-follow';
+                        } else {
+                           btn.innerText = 'Ikuti';
+                           btn.className = 'btn-follow-modern ajax-follow';
+                        }
+                     }
+                  })
+                  .catch(err => {
+                     console.error(err);
+                     btn.innerText = originalText;
+                  })
+                  .finally(() => {
+                     btn.style.opacity = '1';
+                  });
+               return;
+            }
+
             if (e.target.closest('a') || e.target.closest('.notif-content-modern')) {
                drawer.classList.remove('show');
                const icon = btnNotif.querySelector('i');
@@ -160,7 +187,6 @@ $userProfilePic = !empty($sessPic) ? $sessPic : 'images/avatar.svg';
       }
    });
 
-   // C. Logic Modal Popup
    $(document).ready(function () {
       $(document).on('click', '.open-modal', function (e) {
          e.preventDefault();

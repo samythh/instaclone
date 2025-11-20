@@ -34,7 +34,7 @@ class ProfileController extends Controller
             return redirect()->to(site_url("feed/{$currentUsername}"))->with('error', 'Profil tidak ditemukan.');
         }
 
-        $targetId = $profileUser['id'];
+        $targetId = $profileUser['user_id'];
 
         $isFollowing = $this->db->table('followings')
             ->where('follower_id', $currentId)
@@ -65,17 +65,17 @@ class ProfileController extends Controller
         if (!$targetUser)
             return redirect()->back();
 
-        $targetId = $targetUser['id'];
+        $targetId = $targetUser['user_id'];
 
         $check = $followingsTable->where('follower_id', $currentId)
             ->where('followed_id', $targetId)
             ->get()->getRow();
 
         if ($check) {
-            $followingsTable->where('id', $check->id)->delete();
+            $followingsTable->where('following_id', $check->following_id)->delete();
 
-            $this->userModel->set('followers', new RawSql('followers - 1'))->where('id', $targetId)->update();
-            $this->userModel->set('followings', new RawSql('followings - 1'))->where('id', $currentId)->update();
+            $this->userModel->set('followers', new RawSql('followers - 1'))->where('user_id', $targetId)->update();
+            $this->userModel->set('followings', new RawSql('followings - 1'))->where('user_id', $currentId)->update();
 
             $this->notificationModel->where('from_user_id', $currentId)
                 ->where('to_user_id', $targetId)
@@ -87,8 +87,8 @@ class ProfileController extends Controller
         } else {
             $followingsTable->insert(['follower_id' => $currentId, 'followed_id' => $targetId]);
 
-            $this->userModel->set('followers', new RawSql('followers + 1'))->where('id', $targetId)->update();
-            $this->userModel->set('followings', new RawSql('followings + 1'))->where('id', $currentId)->update();
+            $this->userModel->set('followers', new RawSql('followers + 1'))->where('user_id', $targetId)->update();
+            $this->userModel->set('followings', new RawSql('followings + 1'))->where('user_id', $currentId)->update();
 
             if ($currentId != $targetId) {
                 $this->notificationModel->save([

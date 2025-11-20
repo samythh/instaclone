@@ -53,7 +53,7 @@ class FeedController extends Controller
             ) AS is_liked
         ');
 
-        $builder->join('users u', 'u.id = p.user_id', 'inner');
+        $builder->join('users u', 'u.user_id = p.user_id', 'inner');
 
         $builder->groupStart();
         $builder->where('p.user_id', $currentId);
