@@ -31,19 +31,16 @@
             <i class="fa fa-paper-plane-o"></i> <span class="navigation__text">Pesan</span>
          </a>
       </li>
-
       <li class="navigation__list-item">
          <a href="#" class="navigation__link" id="btnNotifToggle">
             <i class="fa fa-heart-o"></i> <span class="navigation__text">Notifikasi</span>
          </a>
       </li>
-
       <li class="navigation__list-item">
          <a href="<?= site_url('post/create') ?>" class="navigation__link">
             <i class="fa fa-plus-square-o"></i> <span class="navigation__text">Buat</span>
          </a>
       </li>
-
       <li class="navigation__list-item">
          <a href="<?= site_url('profile/' . $currentUser) ?>" class="navigation__link navigation__link--profile">
             <img src="<?= base_url('images/avatar.svg') ?>" alt="Profile">
@@ -64,7 +61,6 @@
 
 <div class="notification-drawer" id="notifDrawer">
    <div class="notif-header">Notifikasi</div>
-
    <div class="notif-scroll-area" id="notifContent">
    </div>
 </div>
@@ -75,7 +71,6 @@
 </div>
 
 <script>
-
    function closeModal() {
       $('#postModalOverlay').hide();
       $('#postModalContent').html('');
@@ -122,7 +117,7 @@
                fetch('<?= site_url('notifications/load') ?>')
                   .then(response => response.text())
                   .then(html => { notifContent.innerHTML = html; })
-                  .catch(err => console.error('Error loading notifs'));
+                  .catch(err => console.error(err));
             } else {
                this.querySelector('i').classList.remove('fa-heart');
                this.querySelector('i').classList.add('fa-heart-o');

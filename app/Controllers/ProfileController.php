@@ -3,7 +3,7 @@ namespace App\Controllers;
 
 use App\Models\UserModel;
 use App\Models\PostModel;
-use App\Models\NotificationModel; // TAMBAHAN BARU
+use App\Models\NotificationModel;
 use CodeIgniter\Controller;
 use CodeIgniter\Database\RawSql;
 
@@ -11,37 +11,37 @@ class ProfileController extends Controller
 {
     protected $userModel;
     protected $postModel;
-    protected $notificationModel; // TAMBAHAN BARU
+    protected $notificationModel;
     protected $db;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
         $this->postModel = new PostModel();
-        $this->notificationModel = new NotificationModel(); // TAMBAHAN BARU
+        $this->notificationModel = new NotificationModel();
         $this->db = \Config\Database::connect();
         helper(['url', 'form']);
     }
 
-    // =======================================================
-    // 1. TAMPILAN PROFILE
-    // =======================================================
     public function index($profileUsername)
     {
+        $currentId = session()->get('id');
         $currentUsername = session()->get('username');
 
-        $profileUser = $this->userModel->find($profileUsername);
+        $profileUser = $this->userModel->where('username', $profileUsername)->first();
 
         if (!$profileUser) {
             return redirect()->to(site_url("feed/{$currentUsername}"))->with('error', 'Profil tidak ditemukan.');
         }
 
+        $targetId = $profileUser['id'];
+
         $isFollowing = $this->db->table('followings')
-            ->where('username', $currentUsername)
-            ->where('following', $profileUsername)
+            ->where('follower_id', $currentId)
+            ->where('followed_id', $targetId)
             ->countAllResults() > 0;
 
-        $posts = $this->postModel->where('username', $profileUsername)
+        $posts = $this->postModel->where('user_id', $targetId)
             ->orderBy('time_stamp', 'DESC')
             ->findAll();
 
@@ -50,53 +50,52 @@ class ProfileController extends Controller
             'currentUsername' => $currentUsername,
             'isFollowing' => $isFollowing,
             'posts' => $posts,
-            'isOwner' => ($currentUsername === $profileUsername)
+            'isOwner' => ($currentId == $targetId)
         ];
 
         return view('profile/profile_index', $data);
     }
 
-    // =======================================================
-    // 2. FOLLOW / UNFOLLOW (DENGAN NOTIFIKASI)
-    // =======================================================
     public function toggleFollow($targetUsername)
     {
-        $follower = session()->get('username');
+        $currentId = session()->get('id');
         $followingsTable = $this->db->table('followings');
 
-        $isFollowing = $followingsTable->where('username', $follower)
-            ->where('following', $targetUsername)
-            ->countAllResults() > 0;
+        $targetUser = $this->userModel->where('username', $targetUsername)->first();
+        if (!$targetUser)
+            return redirect()->back();
 
-        if ($isFollowing) {
-            // --- UNFOLLOW ---
-            $followingsTable->where('username', $follower)->where('following', $targetUsername)->delete();
+        $targetId = $targetUser['id'];
 
-            $this->userModel->set('followers', new RawSql('followers - 1'))->where('username', $targetUsername)->update();
-            $this->userModel->set('followings', new RawSql('followings - 1'))->where('username', $follower)->update();
+        $check = $followingsTable->where('follower_id', $currentId)
+            ->where('followed_id', $targetId)
+            ->get()->getRow();
 
-            // Hapus notifikasi follow sebelumnya
-            $this->notificationModel->where('from_username', $follower)
-                ->where('to_username', $targetUsername)
+        if ($check) {
+            $followingsTable->where('id', $check->id)->delete();
+
+            $this->userModel->set('followers', new RawSql('followers - 1'))->where('id', $targetId)->update();
+            $this->userModel->set('followings', new RawSql('followings - 1'))->where('id', $currentId)->update();
+
+            $this->notificationModel->where('from_user_id', $currentId)
+                ->where('to_user_id', $targetId)
                 ->where('type', 'follow')
                 ->delete();
 
             session()->setFlashdata('msg', "Berhasil unfollow {$targetUsername}");
 
         } else {
-            // --- FOLLOW ---
-            $followingsTable->insert(['username' => $follower, 'following' => $targetUsername]);
+            $followingsTable->insert(['follower_id' => $currentId, 'followed_id' => $targetId]);
 
-            $this->userModel->set('followers', new RawSql('followers + 1'))->where('username', $targetUsername)->update();
-            $this->userModel->set('followings', new RawSql('followings + 1'))->where('username', $follower)->update();
+            $this->userModel->set('followers', new RawSql('followers + 1'))->where('id', $targetId)->update();
+            $this->userModel->set('followings', new RawSql('followings + 1'))->where('id', $currentId)->update();
 
-            // KIRIM NOTIFIKASI FOLLOW
-            if ($follower !== $targetUsername) {
+            if ($currentId != $targetId) {
                 $this->notificationModel->save([
-                    'to_username' => $targetUsername,
-                    'from_username' => $follower,
+                    'to_user_id' => $targetId,
+                    'from_user_id' => $currentId,
                     'type' => 'follow',
-                    'post_id' => null, // Follow tidak terkait post
+                    'post_id' => null,
                     'message' => ''
                 ]);
             }
@@ -107,30 +106,29 @@ class ProfileController extends Controller
         return redirect()->back();
     }
 
-    // =======================================================
-    // 3. EDIT PROFILE
-    // =======================================================
     public function edit()
     {
+        $currentId = session()->get('id');
         $currentUsername = session()->get('username');
-        $user = $this->userModel->find($currentUsername);
 
-        $data = ['user' => $user, 'currentUsername' => $currentUsername];
+        $user = $this->userModel->find($currentId);
+
+        $data = [
+            'user' => $user,
+            'currentUsername' => $currentUsername
+        ];
+
         return view('profile/edit_profile', $data);
     }
 
-    // =======================================================
-    // 4. UPDATE PROFILE
-    // =======================================================
     public function updateProfile()
     {
-        $currentUsername = session()->get('username');
+        $currentId = session()->get('id');
         $session = session();
-        $oldUser = $this->userModel->find($currentUsername);
+        $oldUser = $this->userModel->find($currentId);
 
         $rules = [
             'username' => 'required|min_length[3]|max_length[25]',
-            'email' => 'required|valid_email',
             'name' => 'required|max_length[25]',
             'password' => 'permit_empty|min_length[8]|max_length[255]',
         ];
@@ -143,11 +141,9 @@ class ProfileController extends Controller
         $data = [
             'username' => $this->request->getPost('username'),
             'profile_name' => $this->request->getPost('name'),
-            'email' => $this->request->getPost('email'),
             'bio' => $this->request->getPost('bio')
         ];
 
-        // Handle Foto Profil Baru (Opsional)
         $file = $this->request->getFile('image');
         if ($file && $file->isValid() && !$file->hasMoved()) {
             $newName = $file->getRandomName();
@@ -162,12 +158,16 @@ class ProfileController extends Controller
             $data['password'] = $oldUser['password'];
         }
 
-        $this->userModel->update($currentUsername, $data);
+        $this->userModel->update($currentId, $data);
 
         $session->set([
             'username' => $data['username'],
             'profile_name' => $data['profile_name']
         ]);
+
+        if (isset($data['profile_picture'])) {
+            $session->set('profile_picture', $data['profile_picture']);
+        }
 
         $session->setFlashdata('msg', 'Profil berhasil diperbarui.');
         return redirect()->to(site_url("profile/edit"));

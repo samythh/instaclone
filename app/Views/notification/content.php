@@ -49,7 +49,7 @@
             <?php if ($notif['type'] == 'follow'): ?>
                <a href="<?= site_url('profile/toggleFollow/' . $notif['from_username']) ?>" class="btn-follow-modern">Ikuti</a>
             <?php elseif (!empty($notif['post_photo'])): ?>
-               <a href="<?= site_url('post/detail/' . $notif['post_id']) ?>">
+               <a href="<?= site_url('post/detail/' . $notif['post_id']) ?>" class="open-modal">
                   <img src="<?= base_url($notif['post_photo']) ?>" class="notif-post-thumb">
                </a>
             <?php endif; ?>

@@ -1,18 +1,18 @@
-<?php namespace App\Models;
-
+<?php
+namespace App\Models;
 use CodeIgniter\Model;
 
-// Model ini menangani interaksi dengan tabel 'comments'
 class CommentModel extends Model
 {
     protected $table = 'comments';
     protected $primaryKey = 'comment_id';
-    protected $returnType = 'array';
+    protected $allowedFields = ['user_id', 'post_id', 'comment_text'];
 
-    // Kolom yang diizinkan untuk diisi saat pengguna menambahkan komentar
-    protected $allowedFields = [
-        'commentername', 
-        'post_id', 
-        'comment_text'
-    ];
+    public function getCommentsByPost($postId)
+    {
+        return $this->select('comments.*, users.username as commentername, users.profile_picture')
+            ->join('users', 'users.id = comments.user_id')
+            ->where('post_id', $postId)
+            ->findAll();
+    }
 }

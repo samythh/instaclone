@@ -1,6 +1,5 @@
 <?php
 namespace App\Controllers;
-// File: app/Controllers/FeedController.php
 
 use App\Models\PostModel;
 use App\Models\UserModel;
@@ -18,35 +17,29 @@ class FeedController extends Controller
         helper(['url', 'date']);
     }
 
-    // --- TAMBAHKAN FUNGSI INI ---
     public function handleEmptyFeed()
     {
         $username = session()->get('username');
-
-        // Jika user login, arahkan ke feed miliknya yang benar
         if ($username) {
             return redirect()->to(site_url('feed/' . $username));
         }
-
-        // Jika tidak login, kembalikan ke halaman login
         return redirect()->to(site_url('/'));
     }
-    // -----------------------------
 
-    public function index($currentUsername)
+    public function index($urlUsername)
     {
-        // ... (kode index yang sudah ada biarkan saja) ...
-        // Cek sesi login
-        if (session()->get('username') !== $currentUsername || !session()->get('isLoggedIn')) {
+        $currentId = session()->get('id');
+        $currentUsername = session()->get('username');
+
+        if (!$currentId) {
             return redirect()->to(site_url('/'));
         }
 
         $db = \Config\Database::connect();
-
-        // ... (Query builder Anda yang sudah benar) ...
         $builder = $db->table('posts p');
+
         $builder->select('
-            p.username AS follower,
+            u.username AS follower,
             u.profile_picture AS following_dp,
             p.post_id AS post_id,
             p.photo AS photo, 
@@ -56,14 +49,17 @@ class FeedController extends Controller
             (
                 SELECT 1
                 FROM likes
-                WHERE likes.post_id = p.post_id AND likes.likername = ' . $db->escape($currentUsername) . '
+                WHERE likes.post_id = p.post_id AND likes.user_id = ' . $db->escape($currentId) . '
             ) AS is_liked
         ');
-        $builder->join('users u', 'u.username = p.username', 'inner');
+
+        $builder->join('users u', 'u.id = p.user_id', 'inner');
+
         $builder->groupStart();
-        $builder->where('p.username', $currentUsername);
-        $builder->orWhere("p.username IN (SELECT following FROM followings WHERE username = " . $db->escape($currentUsername) . ")");
+        $builder->where('p.user_id', $currentId);
+        $builder->orWhere("p.user_id IN (SELECT followed_id FROM followings WHERE follower_id = " . $db->escape($currentId) . ")");
         $builder->groupEnd();
+
         $builder->orderBy('p.time_stamp', 'DESC');
 
         $feedData = $builder->get()->getResultArray();

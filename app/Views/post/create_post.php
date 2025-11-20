@@ -16,73 +16,70 @@
     <?= $this->include('partials/_sidebar') ?>
 
     <main class="main-container">
+        <div class="create-post-wrapper">
 
-        <div class="create-overlay">
+            <div class="create-overlay">
+                <button class="close-modal" onclick="window.location.href='<?= site_url('feed/' . $currentUsername) ?>'">
+                    <i class="fa fa-times"></i>
+                </button>
 
-            <button class="close-modal" onclick="window.location.href='<?= site_url('feed/' . $currentUsername) ?>'">
-                <i class="fa fa-times"></i>
-            </button>
+                <form action="<?= site_url('post/store') ?>" method="post" enctype="multipart/form-data"
+                    class="create-card" id="postForm">
+                    <div class="create-header">
+                        <button type="button" class="header-btn" id="btnBack" style="display:none;">
+                            <i class="fa fa-arrow-left"></i>
+                        </button>
+                        <div style="width: 30px;" id="spacerLeft"></div>
 
-            <form action="<?= site_url('post/store') ?>" method="post" enctype="multipart/form-data" class="create-card"
-                id="postForm">
+                        <span class="header-title" id="headerTitle">Buat postingan baru</span>
 
-                <div class="create-header">
-                    <button type="button" class="header-btn" id="btnBack" style="display:none;">
-                        <i class="fa fa-arrow-left"></i>
-                    </button>
-                    <div style="width: 30px;" id="spacerLeft"></div>
-
-                    <span class="header-title" id="headerTitle">Buat postingan baru</span>
-
-                    <button type="submit" class="header-btn" id="btnShare" style="display:none;">Bagikan</button>
-                    <div style="width: 30px;" id="spacerRight"></div>
-                </div>
-
-                <div class="create-body">
-
-                    <div class="step-select" id="step1">
-                        <div class="upload-icon-circle">
-                            <i class="fa fa-picture-o"></i>
-                            <i class="fa fa-play-circle-o" style="font-size: 50px; margin-left: -20px;"></i>
-                        </div>
-                        <p style="font-size: 20px; margin-bottom: 20px; font-weight: 300;">Seret foto dan video di sini
-                        </p>
-
-                        <label for="fileToUpload" class="btn-select-computer">Pilih dari komputer</label>
-                        <input type="file" name="fileToUpload" id="fileToUpload" accept="image/*" style="display:none;"
-                            onchange="handleFileSelect(this)">
+                        <button type="submit" class="header-btn" id="btnShare" style="display:none;">Bagikan</button>
+                        <div style="width: 30px;" id="spacerRight"></div>
                     </div>
 
-                    <div class="step-details" id="step3">
-                        <div class="details-image-container">
-                            <img id="previewImageSmall" class="preview-image-full" src="" />
+                    <div class="create-body">
+                        <div class="step-select" id="step1">
+                            <div class="upload-icon-circle">
+                                <i class="fa fa-picture-o"></i>
+                                <i class="fa fa-play-circle-o" style="font-size: 50px; margin-left: -20px;"></i>
+                            </div>
+                            <p style="font-size: 20px; margin-bottom: 20px; font-weight: 300;">Seret foto dan video di
+                                sini</p>
+
+                            <label for="fileToUpload" class="btn-select-computer">Pilih dari komputer</label>
+                            <input type="file" name="fileToUpload" id="fileToUpload" accept="image/*"
+                                style="display:none;" onchange="handleFileSelect(this)">
                         </div>
 
-                        <div class="details-form-container">
-                            <div class="user-info-mini">
-                                <img src="<?= base_url(empty($profilePicture) ? 'images/avatar.svg' : $profilePicture) ?>"
-                                    class="avatar-mini" />
-                                <span class="username-mini"><?= esc($currentUsername) ?></span>
+                        <div class="step-details" id="step3">
+                            <div class="details-image-container">
+                                <img id="previewImageSmall" class="preview-image-full" src="" />
                             </div>
-                            <textarea name="discription" class="caption-input"
-                                placeholder="Tulis keterangan..."></textarea>
-
-                            <div style="border-top: 1px solid #efefef; margin-top: 10px; padding-top: 10px;">
-                                <div
-                                    style="display:flex; justify-content:space-between; margin-bottom:10px; color:#262626;">
-                                    <span>Tambahkan lokasi</span>
-                                    <i class="fa fa-map-marker"></i>
+                            <div class="details-form-container">
+                                <div class="user-info-mini">
+                                    <img src="<?= base_url(empty($profilePicture) ? 'images/avatar.svg' : $profilePicture) ?>"
+                                        class="avatar-mini" />
+                                    <span class="username-mini"><?= esc($currentUsername) ?></span>
                                 </div>
-                                <div style="display:flex; justify-content:space-between; color:#262626;">
-                                    <span>Aksesibilitas</span>
-                                    <i class="fa fa-chevron-down"></i>
+                                <textarea name="discription" class="caption-input"
+                                    placeholder="Tulis keterangan..."></textarea>
+
+                                <div style="border-top: 1px solid #efefef; margin-top: 10px; padding-top: 10px;">
+                                    <div
+                                        style="display:flex; justify-content:space-between; margin-bottom:10px; color:#262626;">
+                                        <span>Tambahkan lokasi</span>
+                                        <i class="fa fa-map-marker"></i>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; color:#262626;">
+                                        <span>Aksesibilitas</span>
+                                        <i class="fa fa-chevron-down"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </main>
 
@@ -106,7 +103,6 @@
                 var reader = new FileReader();
                 reader.onload = function (e) {
                     previewSmall.src = e.target.result;
-
                     goToStep(3);
                 }
                 reader.readAsDataURL(input.files[0]);
@@ -115,10 +111,9 @@
 
         btnBack.addEventListener('click', function () {
             goToStep(1);
-            document.getElementById('fileToUpload').value = ""; // Reset input
+            document.getElementById('fileToUpload').value = "";
         });
 
-        // Logika Perpindahan Tampilan
         function goToStep(step) {
             step1.style.display = 'none';
             step3.style.display = 'none';
@@ -135,11 +130,9 @@
                 spacerLeft.style.display = 'block';
                 spacerRight.style.display = 'block';
 
-                // Ukuran kartu default
                 document.querySelector('.create-card').style.maxWidth = "750px";
             }
             else if (step === 3) {
-
                 step3.style.display = 'flex';
                 headerTitle.innerText = "Buat postingan baru";
 

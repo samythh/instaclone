@@ -1,26 +1,21 @@
-<?php namespace App\Models;
-
+<?php
+namespace App\Models;
 use CodeIgniter\Model;
 
-// Model ini menangani interaksi dengan tabel 'users'
 class UserModel extends Model
 {
-    protected $table = 'users'; 
-
-    protected $primaryKey = 'username';
-
+    protected $table = 'users';
+    protected $primaryKey = 'id';
     protected $returnType = 'array';
-
     protected $allowedFields = [
-        'username', 
-        'password', 
-        'profile_name', 
-        'profile_picture', 
-        'email', 
+        'username',
+        'password',
+        'email',
+        'profile_name',
+        'profile_picture',
         'bio',
         'followers',
         'followings',
         'posts'
     ];
-
 }

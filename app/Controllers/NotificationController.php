@@ -61,4 +61,6 @@ class NotificationController extends Controller
       // Kita return view parsial baru
       return view('notification/content', $data);
    }
+
+   
 }

@@ -1,25 +1,22 @@
 <?php
 namespace App\Models;
-
 use CodeIgniter\Model;
 
 class NotificationModel extends Model
 {
    protected $table = 'notifications';
    protected $primaryKey = 'id';
-   protected $allowedFields = ['to_username', 'from_username', 'type', 'post_id', 'message', 'is_read', 'created_at'];
+   protected $allowedFields = ['to_user_id', 'from_user_id', 'type', 'post_id', 'message', 'is_read'];
 
-   // Fungsi Join Table untuk ambil foto profil pelaku & foto postingan
-   public function getNotifications($username)
+   public function getNotifications($userId)
    {
       return $this->builder()
-         ->select('notifications.*, u.profile_picture as actor_pic, p.photo as post_photo')
-         ->join('users u', 'u.username = notifications.from_username')
-         ->join('posts p', 'p.post_id = notifications.post_id', 'left') // Left join karena notif 'follow' tidak punya post_id
-         ->where('notifications.to_username', $username)
-         ->where('notifications.from_username !=', $username) // Hindari notif dari diri sendiri
+         ->select('notifications.*, u.username as from_username, u.profile_picture as actor_pic, p.photo as post_photo')
+         ->join('users u', 'u.id = notifications.from_user_id')
+         ->join('posts p', 'p.post_id = notifications.post_id', 'left')
+         ->where('notifications.to_user_id', $userId)
+         ->where('notifications.from_user_id !=', $userId)
          ->orderBy('notifications.created_at', 'DESC')
-         ->get()
-         ->getResultArray();
+         ->get()->getResultArray();
    }
 }
