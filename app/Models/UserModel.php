@@ -18,4 +18,8 @@ class UserModel extends Model
         'followings',
         'posts_count'
     ];
+
+    protected $useTimestamps = true; 
+    protected $createdField  = 'created_at'; 
+    protected $updatedField  = 'updated_at'; 
 }
