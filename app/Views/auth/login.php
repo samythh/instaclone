@@ -38,7 +38,7 @@
 
                 <div class="login__divider">ATAU</div>
 
-                <a class="login__fb-link" href="#">
+                <a class="login__fb-link" href="<?= site_url('facebook/login') ?>">
                     <i class="fa fa-facebook-square fa-lg"></i> Masuk dengan Facebook
                 </a>
 

@@ -17,6 +17,8 @@ $routes->post('login/process', 'AuthController::login');
 $routes->get('register', 'AuthController::register');
 $routes->post('register/store', 'AuthController::store');
 $routes->get('logout', 'AuthController::logout');
+$routes->get('facebook/login', 'AuthController::facebookLogin');
+$routes->get('facebook/callback', 'AuthController::facebookCallback');
 
 // --------------------------------------------------------------------
 // 2. ROUTE TERPROTEKSI 

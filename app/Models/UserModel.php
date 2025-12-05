@@ -16,10 +16,11 @@ class UserModel extends Model
         'bio',
         'followers',
         'followings',
-        'posts_count'
+        'posts_count',
+        'facebook_id'
     ];
 
-    protected $useTimestamps = true; 
-    protected $createdField  = 'created_at'; 
-    protected $updatedField  = 'updated_at'; 
+    protected $useTimestamps = true;
+    protected $createdField = 'created_at';
+    protected $updatedField = 'updated_at';
 }
